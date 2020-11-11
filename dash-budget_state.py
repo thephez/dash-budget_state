@@ -36,10 +36,12 @@ def collate_votes(proposal):
             proposal['Abstains'] += 1
 
 
-objects = yaml.load(run_command("dash-cli gobject list all"))
+#objects = yaml.load(run_command("/home/phez/code/dash/src/dash-cli gobject list all"), Loader=yaml.FullLoader)
 proposals = {}
+'''
 for proposal in objects:
     p = objects[proposal]
+    print(p)
     p['_type'], p['_data'] = json.loads(p[u'DataHex'].decode("hex"))[0]
     if str(p['_type']) == 'watchdog':
         continue
@@ -57,8 +59,10 @@ for proposal in objects:
 
 pay_order = sorted(proposals.keys(),
                    key=lambda n: proposals[n]['net_yeas'])[::-1]
-current_block = int(run_command("dash-cli getblockcount"))
-total_masternodes = int(run_command("dash-cli masternode count"))
+'''
+
+current_block = int(run_command("/home/phez/code/dash/src/dash-cli getblockcount"))
+total_masternodes = int(run_command("/home/phez/code/dash/src/dash-cli masternode count | jq .total"))
 cycle_length = 16616
 
 def min_blok_subsidy(nHeight):
@@ -76,9 +80,11 @@ def print_budget(proposals, current_block, cycle_offset):
     budget = cycle_length * .1 * min_blok_subsidy(next_cycle_block)
     print "next budget : {0:>5.2f} days - block {1:} ({2:>5} blocks)".format(
             ((next_cycle_distance * 2.62)/1440), next_cycle_block, next_cycle_distance )
-    print "{0:<30} {1:>6} {2:>9} {3:>16}".format('name', 'yeas', 'payment', 'remaining')
-    sys.stdout.write(TEAL)
-    print "{0:<30}                {1:18.8f} ".format('estimated budget', budget)
+    #print "{0:<30} {1:>6} {2:>9} {3:>16}".format('name', 'yeas', 'payment', 'remaining')
+    #sys.stdout.write(TEAL)
+    #print "{0:<30}                {1:18.8f} ".format('estimated budget', budget)
+    
+    '''
     for pname in pay_order:
         p = proposals[pname]
         if p["end_epoch"] < cycle_epoch:
@@ -94,6 +100,7 @@ def print_budget(proposals, current_block, cycle_offset):
         print "{0:<30} {1:>6}  {2:8.2f} {3:16.8f} {4:}".format(p['name'][:30], p['net_yeas'], float(p['payment_amount']), budget, notfunded)
         if budget < 0:
             budget += float(p['payment_amount'])
+    '''
 
 if __name__ == "__main__":
     print "\ncurrent time      : %s" % time.strftime("%a, %d %b %Y %H:%M:%S %z")
